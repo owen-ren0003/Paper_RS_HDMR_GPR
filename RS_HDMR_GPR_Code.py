@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 import itertools
 
 
-#### define a function that computes rmse
+# define a function that computes rmse [I think you should use sklearn.metrics built in mean_squared_error. Why recreate a function that exists]
 def rmse(ypred, ytest, scale_factor):
     Sqerr = np.power(ytest - ypred, 2)
     MSE = np.sum(Sqerr)
@@ -15,10 +15,13 @@ def rmse(ypred, ytest, scale_factor):
     return rmse
 
 
-
+# [I still think you should use built in functions instead of this.]
 def sumcol(F, j):
-    """"
-    define a function to sum the  columns of a data except column with index i
+    """
+    [define a function to sum the  columns of a data except column with index i
+    :param F:
+    :param j:
+    :return ?:]
     """
     s = np.zeros(F.shape[0])
     for i in range(F.shape[1]):
@@ -29,10 +32,11 @@ def sumcol(F, j):
     return s
 
 
-def RS_HDMR_GPR(X_train, y_train, X_test, y_test, order=3, alpha=1e-8,use_decay_alpha='no', scale_factor=1, length_scale=0.6,
-            number_cycles=10, init='naive',plot_error_bars='no', mixe='no', optimizer=None):
+def RS_HDMR_GPR(X_train, y_train, X_test, y_test, order=3, alpha=1e-8, use_decay_alpha='no', scale_factor=1, length_scale=0.6,
+            number_cycles=10, init='naive', plot_error_bars='no', mixe='no', optimizer=None):
     """
-    This function fits  a RS-HDMR-GPR to data using independent Gaussian Processes for component functions. GPR is used from the python package GaussianProcessRegressor from sklearn.
+    This function fits  a RS-HDMR-GPR to data using independent Gaussian Processes for component functions. GPR is used from the 
+    python package GaussianProcessRegressor from sklearn.
     :parameters of the function are:
     :param X_train: DataFrame
         the training input data as returned from train_test_split function.
@@ -68,15 +72,14 @@ def RS_HDMR_GPR(X_train, y_train, X_test, y_test, order=3, alpha=1e-8,use_decay_
     if init == 'naive':
         yc = (1 / all_combos.shape[0]) * mean * np.ones((X_train.shape[0], all_combos.shape[0]))  # initialize the matrix for the of component functions to zeros, shape is n*D
     if init == 'poly':
-        yc = np.ones((X_train.shape[0], all_combos.shape[
-            0]))  # initialize the matrix for the of component functions to zeros, shape is n*D
+        yc = np.ones((X_train.shape[0], all_combos.shape[0]))  # initialize the matrix for the of component functions to zeros, shape is n*D
         for i in range(0, all_combos.shape[0]):
             x = pd.DataFrame(X_train)[all_combos[i][0]]
             print(x.ndim)
             f = np.polyfit(x, y_train, 3)
             f = np.poly1d(f)
             yc[:, i] = f(x)  # use interpolation function returned by `interp1d`
-    ###define at first one GPR to the D component functions
+    # define at first one GPR to the D component functions [what does this mean?]
 
     l = length_scale
     rbf = RBF(length_scale=l, length_scale_bounds=(1e-2, 1e2))  # + WhiteKernel(noise_level=1e-05)
@@ -123,6 +126,7 @@ def RS_HDMR_GPR(X_train, y_train, X_test, y_test, order=3, alpha=1e-8,use_decay_
     print('order of the HDMR is', order)
     rmse_test = rmse(y_test * scale_factor, ypred * scale_factor)
     print('test rmse', rmse_test)
+    
     fig, ax1 = plt.subplots()
     ax1.plot(y_test * scale_factor, y_pred_scaled, 'bo', markersize=1)
     ax1.set_xlabel('Target', fontsize=14)
@@ -137,6 +141,7 @@ def RS_HDMR_GPR(X_train, y_train, X_test, y_test, order=3, alpha=1e-8,use_decay_
         ax3.grid(True)
         plt.show(block=True)
     return rmse_train, rmse_test, sumcol(yct, 50000), GPR, y_pred_scaled, error_bars * scale_factor
+
 
 if __name__ == '__main__':
     #New 6d dataset
